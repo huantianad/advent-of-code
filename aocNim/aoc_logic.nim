@@ -1,5 +1,5 @@
 include prelude
-import re, macros, httpclient, net, algorithm, times
+import re, macros, httpclient, net, algorithm
 
 
 var SOLUTIONS*: Table[int, proc (x:string):Table[int,string]]
