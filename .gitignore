@@ -1,2 +1,8 @@
 # Dolphin files
 .directory
+
+# 2021
+2021/.vscode/
+2021/aoc/inputs/
+2021/aoc/session
+2021/debug
