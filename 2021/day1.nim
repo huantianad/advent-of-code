@@ -5,13 +5,13 @@ day 1:
     var previous = 0
     var counter = 0
 
-    for e in ints:
+    for e in ints[1..^1]:
       if e > previous:
         counter += 1
 
       previous = e
 
-    return counter - 1
+    return counter
 
   part 2, int:
     var previous = 0
