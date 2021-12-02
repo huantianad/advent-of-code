@@ -43,13 +43,13 @@ template part*(p:int, t=auto, solution:untyped):untyped =
         return $inner()
 
 proc getInput(day: int): string =
-    let filename = fmt"./aoc/inputs/day{day}.in"
+    let filename = fmt"./aocNim/inputs/day{day}.in"
     if fileExists filename:
         return readFile filename
     echo fmt"Downloading input for day {day}."
-    let ctx = newContext(cafile = "./aoc/cacert.pem")
+    let ctx = newContext(cafile = "./aocNim/cacert.pem")
     let client = newHttpClient(sslContext = ctx)
-    client.headers["cookie"] = readFile "./aoc/session"
+    client.headers["cookie"] = readFile "./aocNim/session"
     let input = client.getContent(fmt"https://adventofcode.com/2021/day/{day}/input")
     filename.writeFile(input)
     return input

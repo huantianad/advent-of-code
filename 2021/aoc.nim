@@ -1,1 +1,2 @@
-include aoc/aoc
+# Convience file for importing.
+include ../aocNim/aoc
