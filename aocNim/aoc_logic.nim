@@ -1,7 +1,7 @@
 include prelude
-import re, macros, httpclient, net, algorithm
+import re, macros, httpclient, net, algorithm, math
 
-var SOLUTIONS*: Table[int, proc(x: string): Table[int, string]]
+var SOLUTIONS*: Table[int, proc (x: string): Table[int,string]]
 
 const
  directions8 = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
@@ -23,11 +23,12 @@ func intgrid*(data: string): seq[seq[int]] =
 
 template day*(day: int, solution: untyped): untyped =
     block:
-        SOLUTIONS[day] = proc (input: string): Table[int, string] =
-            var input   {.inject.} = input
-            var ints    {.inject.} = input.ints
-            var lines   {.inject.} = input.splitLines
-            var parts   {.inject.}: Table[int, proc(): string]
+        SOLUTIONS[day] = proc (input: string):Table[int,string] =
+            var inputRaw {.inject.} = input
+            var input {.inject.} = input.strip
+            var ints {.inject.} = input.ints
+            var lines {.inject.} = input.splitLines
+            var parts {.inject.}: Table[int, proc (): string]
             solution
             for k, v in parts:
                 result[k] = $v()
@@ -35,9 +36,9 @@ template day*(day: int, solution: untyped): untyped =
     if isMainModule:
         run day
 
-template part*(p: int, t = auto, solution: untyped): untyped =
-    parts[p] = proc(): string =
-        proc inner(): t =
+template part*(p:int, t = auto, solution: untyped): untyped =
+    parts[p] = proc (): string =
+        proc inner():t =
             solution
         return $inner()
 
@@ -60,8 +61,33 @@ proc run*(day: int) =
     let start = cpuTime()
     let results = SOLUTIONS[day](getInput day)
     let finish = cpuTime()
-
-    echo fmt"Day {day}"
+    echo "Day " & $day
     for k in results.keys.toSeq.sorted:
         echo fmt" Part {k}: {results[k]}"
     echo fmt" Time: {finish-start:.2} s"
+
+func modInv*(a0, modulus: int): int =
+  var (a, b, x0) = (a0, modulus, 0)
+  result = 1
+  if b == 1: return
+  while a > 1:
+    result = result - (a div b) * x0
+    a = a mod b
+    swap a, b
+    swap x0, result
+  if result < 0: result += modulus
+
+func modSum*(data: openarray[int], modulus:int): int =
+    for x in data:
+        result = (result + x) mod modulus
+
+func modProd*(data: openarray[int], modulus:int): int =
+    result = 1
+    for x in data:
+        result = (result * x) mod modulus
+
+func crt*(data: seq[(int, int)]): int =
+    var big_mod = data.mapIt(it[1]).prod
+    for v, m in data.items:
+        let p = big_mod div m
+        result = (result + v * modInv(p, m) * p) mod big_mod
