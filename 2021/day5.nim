@@ -1,5 +1,4 @@
 include aoc
-import strscans
 
 type
   Line = tuple
