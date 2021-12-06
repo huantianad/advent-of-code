@@ -9,60 +9,42 @@ type
   Point = tuple
     x, y: int
 
-let testInput = """0,9 -> 5,9
-8,0 -> 0,8
-9,4 -> 3,4
-2,2 -> 2,1
-7,0 -> 7,4
-6,4 -> 2,0
-0,9 -> 2,9
-3,4 -> 1,4
-0,0 -> 8,8
-5,5 -> 8,2""".splitLines
-
 iterator betterCounter(a, b: int): int =
-  if a < b:
-    for x in countup(a, b):
-      yield x
-  else:
-    for x in countdown(a, b):
-      yield x
+  for x in countup(a, b):
+    yield x
+  for x in countdown(a, b):
+    yield x
 
 day 5:
-  part 1:
-    let parsedLines: seq[Line] = collect:
-      for line in lines:
-        line.scanTuple("$i,$i -> $i,$i")
+  let parsedLines: seq[Line] = collect:
+    for line in lines:
+      line.scanTuple("$i,$i -> $i,$i")
 
-    var counter = initCountTable[Point]()
+  var straight = initCountTable[Point]()
+  var diagonal = initCountTable[Point]()
 
-    for line in parsedLines:
-      var points: seq[Point]
+  for line in parsedLines:
+    if line.x1 == line.x2:
+      for y in betterCounter(line.y1, line.y2):
+        straight.inc (line.x1, y)
 
-      if line.x1 == line.x2:
-        points = collect:
-          for y in betterCounter(line.y1, line.y2):
-            (line.x1, y)
+    elif line.y1 == line.y2:
+      for x in betterCounter(line.x1, line.x2):
+        straight.inc (x, line.y1)
 
-      elif line.y1 == line.y2:
-        points = collect:
-          for x in betterCounter(line.x1, line.x2):
-            (x, line.y1)
-
-      else:
-        points = zip(betterCounter(line.x1, line.x2).toseq, betterCounter(line.y1, line.y2).toseq)
-
-      echo points
+    else:
+      let points = zip(
+        betterCounter(line.x1, line.x2).toseq,
+        betterCounter(line.y1, line.y2).toseq
+      )
 
       for point in points:
-        counter.inc point
+        diagonal.inc point
 
-
-    var count: int
-    for point, times in counter.pairs:
-      if times > 1:
-        inc count
-
-    count
+  part 1:
+    straight.values.countIt(it > 1)
   part 2:
-    "Part 2 solution"
+    var all = straight
+    all.merge(diagonal)
+
+    all.values.countIt(it > 1)
