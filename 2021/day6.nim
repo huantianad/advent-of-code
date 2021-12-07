@@ -16,10 +16,13 @@ proc countFishes(fish: int, turnsLeft: int): int =
     result = countFishes(fish - 1, turnsLeft - 1)
     cache[(fish, turnsLeft)] = result
 
+proc countFishes(fish: seq[int], turnsLeft: int): int =
+  fish.mapIt(countFishes(it, turnsLeft)).sum
+
 day 6:
-  var fishes = input.split(",").map(parseInt)
+  let fishes = input.split(",").map(parseInt)
 
   part 1:
-    fishes.mapIt(countFishes(it, 80)).sum
+    countFishes(fishes, 80)
   part 2:
-    fishes.mapIt(countFishes(it, 256)).sum
+    countFishes(fishes, 256)
