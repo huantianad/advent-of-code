@@ -3,25 +3,8 @@ import re, macros, httpclient, net, algorithm, math
 
 var SOLUTIONS*: Table[int, proc (x: string): Table[int,string]]
 
-const
- directions8 = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
- directions4 = [(0, -1), (1, 0), (0, 1), (-1, 0)]
-
-
-func drop[T](s: seq[T], d: int): seq[T] = s[d..^1]
-
-func grid*(data: string, sep: string = ""): seq[seq[string]] =
-    if sep == "":
-        return data.splitLines.mapIt(it.splitWhitespace)
-    return data.splitLines.mapIt(it.split(sep))
-
-func ints*(data: string): seq[int] =
-    data.findAll(re"-?\d+").map(parseInt)
-
-func intgrid*(data: string): seq[seq[int]] =
-    data.splitLines.map(ints)
-
 template day*(day: int, solution: untyped): untyped =
+    ## Defines a solution function, if isMainModule, runs it.
     block:
         SOLUTIONS[day] = proc (input: string):Table[int,string] =
             var inputRaw {.inject.} = input
@@ -42,7 +25,34 @@ template part*(p:int, t = auto, solution: untyped): untyped =
             solution
         return $inner()
 
+## Common direction vectors
+const
+ directions8* = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
+ directions4* = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+
+
+func drop*[T](s: seq[T], d: int):seq[T] =
+    ## Returns s with d initial elements dropped
+    s[d..^1]
+
+func grid*(data:string, sep:string = ""): seq[seq[string]] =
+    ## Splits input into 2D grid, rows separated by NL,
+    ## columns separated by sep - whitespace by default.
+    if sep == "":
+        return data.splitLines.mapIt(it.splitWhitespace)
+    return data.splitLines.mapIt(it.split(sep))
+
+func ints*(data:string): seq[int] =
+    ## Returns all ints < 10^9 present in the input text.
+    data.findAll(re"-?\d+").filterIt(it.len <= 18).map(parseInt)
+
+func intgrid*(data:string): seq[seq[int]] =
+    ## Returns a matrix of ints present in the input text
+    data.splitLines.map(ints)
+
 proc getInput(day: int): string =
+    ## Downloads an input for given day, saves it on disk and returns it,
+    ## unless it's been downloaded before, in which case loads it from the disk.
     let filename = fmt"./aocNim/inputs/day{day}.in"
     if fileExists filename:
         return readFile filename
@@ -65,29 +75,3 @@ proc run*(day: int) =
     for k in results.keys.toSeq.sorted:
         echo fmt" Part {k}: {results[k]}"
     echo fmt" Time: {finish-start:.2} s"
-
-func modInv*(a0, modulus: int): int =
-  var (a, b, x0) = (a0, modulus, 0)
-  result = 1
-  if b == 1: return
-  while a > 1:
-    result = result - (a div b) * x0
-    a = a mod b
-    swap a, b
-    swap x0, result
-  if result < 0: result += modulus
-
-func modSum*(data: openarray[int], modulus:int): int =
-    for x in data:
-        result = (result + x) mod modulus
-
-func modProd*(data: openarray[int], modulus:int): int =
-    result = 1
-    for x in data:
-        result = (result * x) mod modulus
-
-func crt*(data: seq[(int, int)]): int =
-    var big_mod = data.mapIt(it[1]).prod
-    for v, m in data.items:
-        let p = big_mod div m
-        result = (result + v * modInv(p, m) * p) mod big_mod

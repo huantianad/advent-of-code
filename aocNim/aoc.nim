@@ -1,3 +1,3 @@
 include prelude
-import aoc_logic, algorithm, math, sugar, strscans
+import aoc_logic, algorithm, math, sugar, strscans, deques
 import unpack

@@ -18,12 +18,8 @@ proc getAllLength(row: RawRow, len: int): seq[HashSet[char]] =
 proc parseRawRow(line: string): RawRow =
   [uniqueRaw, outputRaw] <- line.split(" | ")
 
-  let unique = collect:
-    for digit in uniqueRaw.split:
-      digit.toSeq.toHashSet
-  let output = collect:
-    for digit in outputRaw.split:
-      digit.toSeq.toHashSet
+  let unique = uniqueRaw.split.mapIt(it.toSeq.toHashSet)
+  let output = outputRaw.split.mapIt(it.toSeq.toHashSet)
 
   (unique, output)
 
@@ -35,15 +31,15 @@ proc parseRow(row: RawRow): int =
   let seven = row.getOnlyLength(3)
   let eight = row.getOnlyLength(7)
 
-  fakeToReal['a'] = (seven - one).getOnlyElement
-
   let zeroSixNine = row.getAllLength(6)
   let twoThreeFive = row.getAllLength(5)
+
 
   let oneMissing = zeroSixNine.mapIt(eight - it).map(getOnlyElement).toHashSet
 
   fakeToReal['f'] = (one - oneMissing).getOnlyElement
   fakeToReal['c'] = (one - [fakeToReal['f']].toHashSet).getOnlyElement
+
 
   let six = zeroSixNine.filterIt(fakeToReal['c'] notin it)[0]
 
@@ -51,11 +47,13 @@ proc parseRow(row: RawRow): int =
   let zero = zeroNine.filterIt((it - four).len == 3)[0]
   let nine = zeroNine.filterIt((it - four).len == 2)[0]
 
+
   let two = twoThreeFive.filterIt((it - nine).len == 1)[0]
   let threeFive = twoThreeFive.filterIt(it != two)
 
   let five = threeFive.filterIt(fakeToReal['c'] notin it)[0]
   let three = threeFive.filterIt(fakeToReal['c'] in it)[0]
+
 
   let convert = {one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, zero: 0}.toTable
 
