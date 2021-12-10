@@ -7,13 +7,13 @@ type
   Board = seq[seq[int]]
 
 
+proc get(board: Board, point: Point): int =
+  board[point.y][point.x]
+
 iterator points(board: Board): Point =
   for y, row in board.pairs:
     for x, col in row.pairs:
       yield (x, y)
-
-proc get(board: Board, point: Point): int =
-  board[point.y][point.x]
 
 iterator neighbors(point: Point): Point =
   for x, y in directions4.items:
@@ -28,6 +28,13 @@ iterator neighborValues(board: Board, point: Point): int =
   for point in board.neighbors(point):
     yield board.get(point)
 
+proc isLow(board: Board, point: Point): bool =
+  for neighbor in board.neighborValues(point):
+    if neighbor <= board.get(point):
+      return false
+
+  return true
+
 proc search(board: Board, point: Point, visited: var seq[Point]): int =
   visited.add(point)
 
@@ -35,7 +42,7 @@ proc search(board: Board, point: Point, visited: var seq[Point]): int =
     if neighbor in visited: continue
     if board.get(neighbor) == 9: continue
 
-    result.inc(search(board, neighbor, visited))
+    result += search(board, neighbor, visited)
 
   # Increment the counter for this point
   result.inc
@@ -49,19 +56,10 @@ proc search(board: Board, point: Point): int =
 day 9:
   let board: Board = lines.mapIt(it.toSeq.mapIt(($it).parseInt))
 
-  var part1: int
-  var lowPoints: seq[Point]
+  let lowPoints = board.points.toSeq.filterIt(board.isLow(it))
 
-  for point in board.points:
-    let pointValue = board.get(point)
-    if board.neighborValues(point).toSeq.allIt(it > pointValue):
-      part1 += pointValue + 1
-      lowPoints.add(point)
-
-  let part2 = collect(
-    for point in lowPoints:
-      search(board, point)
-  ).sorted(SortOrder.Descending)
+  let part1 = lowPoints.mapIt(board.get(it)).sum + lowPoints.len
+  let part2 = lowPoints.mapIt(search(board, it)).sorted(SortOrder.Descending)
 
   part 1:
     part1
