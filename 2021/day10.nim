@@ -9,19 +9,16 @@ day 10:
   var score2: seq[int]
 
   for line in lines:
-    var isCorrupt: bool
     var expected = initDeque[char]()
 
-    for bracket in line:
-      if bracket in openToClose:
-        expected.addLast(openToClose[bracket])
-      else:
-        if bracket != expected.popLast:
+    block check:
+      for bracket in line:
+        if bracket in openToClose:
+          expected.addLast(openToClose[bracket])
+        elif bracket != expected.popLast:
           score1 += scores1[bracket]
-          isCorrupt = true
-          break
+          break check
 
-    if not isCorrupt:
       var score: int
 
       for bracket in expected.toSeq.reversed:
