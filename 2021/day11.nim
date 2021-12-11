@@ -30,10 +30,9 @@ iterator neighbors(board: Board, point: Point): Point =
       yield (x, y)
 
 proc notDone(board: Board, flashed: seq[Point]): bool =
-  for y, row in board.pairs:
-    for x, value in row.pairs:
-      if value > 9 and (x, y) notin flashed:
-        return true
+  for point in board.points:
+    if board[point] > 9 and point notin flashed:
+      return true
   return false
 
 proc allSame(board: Board): bool =
