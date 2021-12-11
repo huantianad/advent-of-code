@@ -29,10 +29,6 @@ iterator neighbors(board: Board, point: Point): Point =
     if 0 <= x and x < board[0].len and 0 <= y and y < board.len:
       yield (x, y)
 
-iterator neighborValues(board: Board, point: Point): int =
-  for point in board.neighbors(point):
-    yield board[point]
-
 proc notDone(board: Board, flashed: seq[Point]): bool =
   for y, row in board.pairs:
     for x, value in row.pairs:
@@ -40,25 +36,20 @@ proc notDone(board: Board, flashed: seq[Point]): bool =
         return true
   return false
 
-
-let test = """5483143223
-2745854711
-5264556173
-6141336146
-6357385478
-4167524645
-2176841721
-6882881134
-4846848554
-5283751526""".splitLInes
+proc allSame(board: Board): bool =
+  let first = board[0][0]
+  for point in board.points:
+    if board[point] != first: return false
+  return true
 
 
 day 11:
   var board: Board = lines.mapIt(it.toSeq.mapIt(($it).parseInt))
 
-  var counter: int
+  var counter1: int
+  var counter2: int
 
-  for _ in 1..100:
+  while not board.allSame:
     for point in board.points:
       board[point] += 1
 
@@ -66,7 +57,7 @@ day 11:
     while board.notDone(flashed):
       for point in board.points:
         if board[point] > 9 and point notin flashed:
-          counter.inc
+          if counter2 < 100: counter1.inc
           flashed.add(point)
 
           for neighbor in board.neighbors(point):
@@ -75,9 +66,9 @@ day 11:
     for point in flashed:
       board[point] = 0
 
-    echo board
+    inc counter2
 
   part 1:
-    counter
+    counter1
   part 2:
-    "Part 2 solution"
+    counter2
