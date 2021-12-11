@@ -9,15 +9,15 @@ type
 proc `$`(board: Board): string =
   board.mapIt(it.join).join("\n")
 
-template `[]`(board: Board, point: Point): int =
-  board[point.y][point.x]
+template `[]`(board: Board, key: Point): int =
+  board[key.y][key.x]
 
 proc `[]=`(board: var Board, key: Point, val: int) =
   board[key.y][key.x] = val
 
 iterator points(board: Board): Point =
-  for y, row in board.pairs:
-    for x, col in row.pairs:
+  for y in 0..<board.len:
+    for x in 0..<board[0].len:
       yield (x, y)
 
 iterator neighbors(point: Point): Point =
@@ -29,35 +29,34 @@ iterator neighbors(board: Board, point: Point): Point =
     if 0 <= x and x < board[0].len and 0 <= y and y < board.len:
       yield (x, y)
 
-proc notDone(board: Board, flashed: seq[Point]): bool =
+proc notDone(board: Board, flashed: HashSet[Point]): bool =
+  # True whenever there's a point that could flash, but hasn't yet.
   for point in board.points:
     if board[point] > 9 and point notin flashed:
       return true
-  return false
 
-proc allSame(board: Board): bool =
+proc notAllSame(board: Board): bool =
   let first = board[0][0]
   for point in board.points:
-    if board[point] != first: return false
-  return true
-
+    if board[point] != first:
+      return true
 
 day 11:
   var board: Board = lines.mapIt(it.toSeq.mapIt(($it).parseInt))
 
-  var counter1: int
-  var counter2: int
+  var flashes: int
+  var turns: int
 
-  while not board.allSame:
+  while board.notAllSame:
     for point in board.points:
       board[point] += 1
 
-    var flashed: seq[Point]
+    var flashed = initHashSet[Point]()
     while board.notDone(flashed):
       for point in board.points:
         if board[point] > 9 and point notin flashed:
-          if counter2 < 100: counter1.inc
-          flashed.add(point)
+          flashed.incl(point)
+          if turns < 100: flashes += 1
 
           for neighbor in board.neighbors(point):
             board[neighbor] += 1
@@ -65,9 +64,9 @@ day 11:
     for point in flashed:
       board[point] = 0
 
-    inc counter2
+    turns += 1
 
   part 1:
-    counter1
+    flashes
   part 2:
-    counter2
+    turns
