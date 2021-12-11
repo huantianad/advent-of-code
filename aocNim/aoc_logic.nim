@@ -1,17 +1,17 @@
 include prelude
-import re, macros, httpclient, net, algorithm, math
+import re, macros, httpclient, net, algorithm
 
-var SOLUTIONS*: Table[int, proc (x: string): Table[int,string]]
+var solutions*: Table[int, proc (x: string): Table[int, string]]
 
 template day*(day: int, solution: untyped): untyped =
     ## Defines a solution function, if isMainModule, runs it.
     block:
-        SOLUTIONS[day] = proc (input: string):Table[int,string] =
+        solutions[day] = proc (input: string): Table[int, string] =
             var inputRaw {.inject.} = input
             var input {.inject.} = input.strip
             var ints {.inject.} = input.ints
             var lines {.inject.} = input.splitLines
-            var parts {.inject.}: Table[int, proc (): string]
+            var parts {.inject.}: OrderedTable[int, proc (): string]
             solution
             for k, v in parts:
                 result[k] = $v()
@@ -19,34 +19,34 @@ template day*(day: int, solution: untyped): untyped =
     if isMainModule:
         run day
 
-template part*(p:int, t = auto, solution: untyped): untyped =
+template part*(p: int, t = auto, solution: untyped): untyped =
     parts[p] = proc (): string =
-        proc inner():t =
+        proc inner(): t =
             solution
         return $inner()
 
 ## Common direction vectors
 const
- directions8* = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
- directions4* = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+    directions8* = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
+    directions4* = [(0, -1), (1, 0), (0, 1), (-1, 0)]
 
 
-func drop*[T](s: seq[T], d: int):seq[T] =
+func drop*[T](s: seq[T], d: int): seq[T] =
     ## Returns s with d initial elements dropped
     s[d..^1]
 
-func grid*(data:string, sep:string = ""): seq[seq[string]] =
+func grid*(data: string, sep: string = ""): seq[seq[string]] =
     ## Splits input into 2D grid, rows separated by NL,
     ## columns separated by sep - whitespace by default.
     if sep == "":
         return data.splitLines.mapIt(it.splitWhitespace)
     return data.splitLines.mapIt(it.split(sep))
 
-func ints*(data:string): seq[int] =
+func ints*(data: string): seq[int] =
     ## Returns all ints < 10^9 present in the input text.
     data.findAll(re"-?\d+").filterIt(it.len <= 18).map(parseInt)
 
-func intgrid*(data:string): seq[seq[int]] =
+func intgrid*(data: string): seq[seq[int]] =
     ## Returns a matrix of ints present in the input text
     data.splitLines.map(ints)
 
@@ -69,7 +69,7 @@ proc getInput(day: int): string =
 
 proc run*(day: int) =
     let start = cpuTime()
-    let results = SOLUTIONS[day](getInput day)
+    let results = solutions[day](getInput day)
     let finish = cpuTime()
     echo "Day " & $day
     for k in results.keys.toSeq.sorted:

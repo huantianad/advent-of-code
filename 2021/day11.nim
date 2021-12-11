@@ -30,7 +30,7 @@ iterator neighbors(board: Board, point: Point): Point =
       yield (x, y)
 
 proc notDone(board: Board, flashed: HashSet[Point]): bool =
-  # True whenever there's a point that could flash, but hasn't yet.
+  ## True whenever there's a point that could flash, but hasn't yet.
   for point in board.points:
     if board[point] > 9 and point notin flashed:
       return true
