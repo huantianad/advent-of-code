@@ -9,29 +9,24 @@ type
     position: int
 
 day 13:
-  [rawPoints, rawFolds] <- input.split("\n\n")
+  var points: HashSet[Point]
+  var folds: seq[Fold]
 
-  let points: HashSet[Point] = collect:
-    for rawPoint in rawPoints.splitLines.toSeq:
-      let (success, x, y) = rawPoint.scanTuple("$i,$i")
-      if success: {(x, y)}
+  for line in lines:
+    let (success, x, y) = line.scanTuple("$i,$i")
+    if success: points.incl((x, y)); continue
 
-  let folds: seq[Fold] = collect:
-    for rawFold in rawFolds.splitLines:
-      let (success, axis, position) = rawFold.scanTuple("fold along $c=$i")
-      if success: (axis, position)
+    let (success2, axis, position) = line.scanTuple("fold along $c=$i")
+    if success2: folds.add((axis, position))
+
 
   var stages: seq[HashSet[Point]] = @[points]
   for axis, position in folds.items:
     stages.add collect(
-      if axis == 'x':
-        for point in stages[^1]:
-          if point.x > position: (position * 2 - point.x, point.y)
-          else: point
-      elif axis == 'y':
-        for point in stages[^1]:
-          if point.y > position: (point.x, position * 2 - point.y)
-          else: point
+      for point in stages[^1]:
+        if axis == 'x' and point.x > position: (position * 2 - point.x, point.y)
+        elif axis == 'y' and point.y > position: (point.x, position * 2 - point.y)
+        else: point
     ).toHashSet
 
 
