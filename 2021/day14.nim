@@ -1,6 +1,6 @@
 include aoc
 
-proc realCount(pairsCount: CountTable[string], original: string): CountTable[char] =
+proc realCount(pairsCount: CountTable[string], original: string): int =
   var counter = initCountTable[char]()
   for pair, occurences in pairsCount:
     counter.inc(pair[0], occurences * 2)
@@ -9,7 +9,7 @@ proc realCount(pairsCount: CountTable[string], original: string): CountTable[cha
   counter.inc(original[0], -1)
   counter.inc(original[^1], 2)
 
-  counter
+  counter.largest.val - counter.smallest.val
 
 day 14:
   # Input parsing
@@ -33,11 +33,7 @@ day 14:
 
     newPairs.add(thisNewPair)
 
-  let part1 = realCount(newPairs[10], polymer)
-  let part2 = realCount(newPairs[40], polymer)
-
-
   part 1:
-    part1.largest.val - part1.smallest.val
+    realCount(newPairs[10], polymer)
   part 2:
-    part2.largest.val - part2.smallest.val
+    realCount(newPairs[40], polymer)
