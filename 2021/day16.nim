@@ -49,8 +49,6 @@ proc toOperatorPacket(raw: string): (Packet, string) =
 
     finalRemaining = remaining
 
-  result[1] = finalRemaining
-
   (Packet(
     kind: pkOperator,
     version: raw[0..2].parseBinInt,
