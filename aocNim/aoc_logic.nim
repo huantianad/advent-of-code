@@ -19,9 +19,10 @@ template day*(day: int, solution: untyped): untyped =
     if isMainModule:
         run day
 
-template part*(p: int, t = auto, solution: untyped): untyped =
+template part*(p: int, solution: untyped): untyped =
+    ## Defines a part solution function.
     parts[p] = proc (): string =
-        proc inner(): t =
+        proc inner(): auto =
             solution
         return $inner()
 
