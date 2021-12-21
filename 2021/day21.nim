@@ -33,6 +33,10 @@ proc doTurn(player: var Player, rollResult: int) =
   player.position = (player.position + rollResult) mod 10
   player.score += player.position + 1
 
+proc doTurn(player: Player, rollResult: int): Player =
+  result.position = (player.position + rollResult) mod 10
+  result.score = player.score + result.position + 1
+
 proc roll(die: var DeterministicDie): int =
   for _ in 1..3:
     result += die.currentValue
@@ -57,8 +61,7 @@ proc simulate(player1, player2: Player, currentPlayer: range[1..2]): (int, int) 
 
   if currentPlayer == 1:
     for roll, times in possibleRolls():
-      var newPlayer1 = player1
-      newPlayer1.doTurn(roll)
+      let newPlayer1 = player1.doTurn(roll)
 
       if newPlayer1.score >= 21:
         result += (times, 0)
@@ -67,8 +70,7 @@ proc simulate(player1, player2: Player, currentPlayer: range[1..2]): (int, int) 
 
   elif currentPlayer == 2:
     for roll, times in possibleRolls():
-      var newPlayer2 = player2
-      newPlayer2.doTurn(roll)
+      let newPlayer2 = player2.doTurn(roll)
 
       if newPlayer2.score >= 21:
         result += (0, times)
