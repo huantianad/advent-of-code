@@ -7,6 +7,8 @@
 # nim debug output
 debug/
 
+.direnv
+
 # 2021 nim stuff
-aocNim/inputs/
-aocNim/session
+**/aocNim/inputs/
+**/aocNim/session
