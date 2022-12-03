@@ -5,17 +5,15 @@ type
     opponent: 'A'..'C'
     player: 'X'..'Z'
 
-# I know this is cursed
-proc `+`(a: char, b: int): char = char(ord(a) + b)
-proc `-`(a, b: char): int = ord(a) - ord(b)
+proc index[T: range](r: T): int = r.ord - T.low.ord
 
 func calcScore1(round: Round): int {.compileTime.} =
   #  RPS Player
   # R360
   # P036
   # S603
-  let opponent = round.opponent - 'A'
-  let player = round.player - 'X'
+  let opponent = round.opponent.index
+  let player = round.player.index
 
   ((player - opponent + 1 + 3) mod 3) * 3 + (player + 1)
 
@@ -24,10 +22,10 @@ func calcScore2(round: Round): int {.compileTime.}  =
   # R312
   # P123
   # S231
-  let opponent = round.opponent - 'A'
-  let player = round.player - 'X'
+  let opponent = round.opponent.index
+  let player = round.player.index
 
-  ((player + opponent - 1 + 3) mod 3 + 1) + player * 3
+  ((player + opponent - 1 + 3) mod 3 + 1) + (player * 3)
 
 func makeScoresArray(calc: Round -> int): array['A'..'C', array['X'..'Z', int]] {.compileTime.} =
   for opponent in 'A'..'C':
