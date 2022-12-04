@@ -14,6 +14,6 @@ day 4:
       (a..b, x..y)
 
   part 1:
-    parsed.filterIt((let (a, b) = it; a in b or b in a)).len
+    parsed.countIt((let (a, b) = it; a in b or b in a))
   part 2:
-    parsed.filterIt(it[0] ∩ it[1]).len
+    parsed.countIt(it[0] ∩ it[1])
