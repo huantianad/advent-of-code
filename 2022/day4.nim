@@ -1,15 +1,10 @@
 include aoc
 
-proc check(i: (HSlice[int, int], HSlice[int, int])): bool =
-  let (a, b) = i
-  a.a >= b.a and a.b <= b.b or a.a <= b.a and a.b >= b.b
+proc contains(a, b: HSlice[int, int]): bool =
+  a.a >= b.a and a.b <= b.b
 
-proc check2(i: (HSlice[int, int], HSlice[int, int])): bool =
-  let (a, b) = i
-  for x in a:
-    if x in b: return true
-  for y in b:
-    if y in a: return true
+proc `∩`(a, b: HSlice[int, int]): bool =
+  a.b >= b.a and a.a <= b.b
 
 day 4:
   let parsed = collect:
@@ -19,6 +14,6 @@ day 4:
       (a..b, x..y)
 
   part 1:
-    parsed.filter(check).len
+    parsed.filterIt((let (a, b) = it; a in b or b in a)).len
   part 2:
-    parsed.filter(check2).len
+    parsed.filterIt(it[0] ∩ it[1]).len
