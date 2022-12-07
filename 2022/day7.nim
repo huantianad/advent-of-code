@@ -19,7 +19,6 @@ proc parse(lines: seq[string]): Node =
 
     if line == "$ cd ..":
       current = current.parent
-      assert current != nil
     elif line.scanf("$$ cd $+", name):
       current = current.children[name]
     elif line == "$ ls":
@@ -34,25 +33,27 @@ proc parse(lines: seq[string]): Node =
 proc addSizeToParent(node: Node) =
   if node.isFolder:
     for child in node.children.values:
-      addSizeToParent(child)
+      child.addSizeToParent()
 
   node.parent.size += node.size
 
-proc sumWithPredicate(node: Node, predicate: Node -> int): int =
+proc getFolderSizes(node: Node): seq[int] =
   if node.isFolder:
     for child in node.children.values:
-      result += child.sumWithPredicate(predicate)
+      result &= child.getFolderSizes()
 
-  result += predicate(node)
+    result.add node.size
 
 day 7:
   let root = lines.parse()
-  for child in root.children.values:
-    addSizeToParent(child)
 
-  echo root[]
+  for child in root.children.values:
+    child.addSizeToParent()
+
+  let folderSizes = root.getFolderSizes()
 
   part 1:
-    root.sumWithPredicate(node => (if node.size <= 100000: node.size else: 0))
+    folderSizes.filterIt(it < 100000).sum()
   part 2:
-    "2"
+    let minSize = 30000000 - (70000000 - root.size)
+    folderSizes.filterIt(it > minSize).sorted()[0]
