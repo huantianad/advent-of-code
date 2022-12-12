@@ -41,13 +41,11 @@ day 10:
   part 2:
     result = newStringOfCap(41 * 6)
     result.add '\n'
+
     for y in 0..<6:
       for x in 0..<40:
         result.add(
-          if x - regVals[y * 40 + x] in -1..1:
-            '#'
-          else:
-            ' '
+          if x - regVals[y * 40 + x] in -1..1: '#'
+          else:  ' '
         )
-
       result.add '\n'
