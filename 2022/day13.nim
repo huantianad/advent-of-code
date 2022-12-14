@@ -25,61 +25,61 @@ proc eatChar(input: string, i: var int, c: char) =
   else:
     assert false
 
-proc parseLine(input: string, i: var int): Packet =
+proc parseInt(input: string, i: var int): Packet =
+  var value: int
+  i += parseInt(input, value, i)
+  Packet(kind: Value, value: value)
+
+proc parseList(input: string, i: var int): Packet =
   result = Packet(kind: List)
 
   eatChar(input, i, '[')
 
   while true:
-    if input[i] == '[':
-      result.list.add parseLine(input, i)
+    case input[i]:
+    of ']':
+      # Handle empty list where ] comes right after [
+      break
+    of '[':
+      result.list.add parseList(input, i)
+    of Digits:
+      result.list.add parseInt(input, i)
     else:
-      var number: int
-      let incBy = parseInt(input, number, i)
-      if incBy > 0:
-        i += incBy
-        result.list.add Packet(kind: Value, value: number)
+      assert false
 
-    if input[i] == ',':
+    case input[i]:
+    of ',':
       eatChar(input, i, ',')
-      continue
-    elif input[i] == ']':
-      eatChar(input, i, ']')
+    of ']':
       break
     else:
       assert false
 
+  eatChar(input, i, ']')
   if input[i] == '\n':
     inc i
 
 proc parseInput(input: string): seq[(Packet, Packet)] =
+  result = newSeqOfCap[(Packet, Packet)](input.len div 3)
   var i = 0
   while true:
-    result.add (parseLine(input, i), parseLine(input, i))
+    result.add (parseList(input, i), parseList(input, i))
     if i >= input.len: break
     eatChar(input, i, '\n')
 
-proc compare(a, b: Packet): Option[bool]
+proc compare(a, b: Packet): int
 
-proc compare(a, b: int): Option[bool] =
-  if a < b:
-    true.some
-  elif a > b:
-    false.some
-  else:
-    bool.none
-
-proc compare(a, b: seq[Packet]): Option[bool] =
+proc compare(a, b: seq[Packet]): int =
   for i in 0..min(a.high, b.high):
     let test = compare(a[i], b[i])
-    if test.isSome:
+    if test != 0:
       return test
 
-  compare(a.len, b.len)
+  system.cmp(a.len, b.len)
 
-proc compare(a, b: Packet): Option[bool] =
+proc compare(a, b: Packet): int =
   if a.kind == Value and b.kind == Value:
-    compare(a.value, b.value)
+    system.cmp(a.value, b.value)
   elif a.kind == List and b.kind == List:
     compare(a.list, b.list)
   else:
@@ -106,7 +106,7 @@ proc funniSorted(input: seq[(Packet, Packet)]): seq[Packet] =
   for a in dividers:
     result.add a
 
-  result.sort((a, b) => not compare(a, b).get())
+  result.sort(compare)
 
 day 13:
   let parsed = inputRaw.parseInput()
@@ -114,7 +114,7 @@ day 13:
   part 1:
     result = 0
     for i, (a, b) in parsed:
-      if compare(a, b).get():
+      if compare(a, b) == -1:
         result += i + 1
 
   part 2:
