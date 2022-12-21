@@ -5,9 +5,8 @@ type
   MonkeyKind = enum
     Value, Add, Sub, Mul, Div
   Monkey = object
-    value: int
     case kind: MonkeyKind
-    of Value: discard
+    of Value: value: int
     else: a, b: string
 
 proc parseInput(lines: seq[string]): Table[string, Monkey] =
@@ -28,27 +27,16 @@ proc parseInput(lines: seq[string]): Table[string, Monkey] =
         (name, Monkey(kind: kind, a: a, b: b))
     ).toTable()
 
-const reverseOp = [
-  Add: Sub,
-  Sub: Add,
-  Mul: Div,
-  Div: Mul
-]
-
-proc op(op: Add..Div, a, b: int): int =
-  case op:
+proc eval(table: var Table[string, Monkey], name: string): int =
+  let this = table[name]
+  template a: int = table.eval(this.a)
+  template b: int = table.eval(this.b)
+  case this.kind:
+    of Value: this.value
     of Add: a + b
     of Sub: a - b
     of Mul: a * b
     of Div: a div b
-
-proc eval(table: var Table[string, Monkey], name: string): int =
-  let this = table[name]
-  if this.kind == Value:
-    return this.value
-
-  table[name].value = op(this.kind, table.eval(this.a), table.eval(this.b))
-  table[name].value
 
 proc findPathToHumn(table: Table[string, Monkey], name: string): HashSet[string] =
   if name == "humn":
@@ -75,24 +63,34 @@ proc eval2(
 
   if name == "root":
     if this.a in pathToHumn:
-      return table.eval2(this.a, table.eval(this.b), pathToHumn)
+      table.eval2(this.a, table.eval(this.b), pathToHumn)
 
     elif this.b in pathToHumn:
-      return table.eval2(this.b, table.eval(this.a), pathToHumn)
+      table.eval2(this.b, table.eval(this.a), pathToHumn)
 
-  if this.a in pathToHumn:
-    let newTarget = op(reverseOp[this.kind], target, table.eval(this.b))
-    return table.eval2(this.a, newTarget, pathToHumn)
+    else: assert false; 0
+
+  elif this.a in pathToHumn:
+    let b = table.eval(this.b)
+    let target = case this.kind:
+      of Add: target - b
+      of Sub: target + b
+      of Mul: target div b
+      of Div: target * b
+      else: assert false; 0
+    table.eval2(this.a, target, pathToHumn)
 
   elif this.b in pathToHumn:
     let a = table.eval(this.a)
-    let newTarget = case this.kind:
-    of Add: target - a
-    of Sub: a - target
-    of Mul: target div a
-    of Div: a div target
-    else: assert false; 1
-    return table.eval2(this.b, newTarget, pathToHumn)
+    let target = case this.kind:
+      of Add: target - a
+      of Sub: a - target
+      of Mul: target div a
+      of Div: a div target
+      else: assert false; 1
+    table.eval2(this.b, target, pathToHumn)
+
+  else: assert false; 0
 
 day 21:
   var parsed = lines.parseInput()
