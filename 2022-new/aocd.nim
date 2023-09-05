@@ -26,11 +26,10 @@ proc recursiveWriteFile*(path: Path, content: string) =
   path.writeFile(content)
 
 template timed(code: typed): Duration =
-  block:
-    let start = getMonoTime()
-    code
-    let finish = getMonoTime()
-    (finish - start)
+  let start = getMonoTime()
+  code
+  let finish = getMonoTime()
+  finish - start
 
 proc getCookie(): string =
   ## Reads the user's AoC session cookie. Location is decided by `getConfigDir()`.
