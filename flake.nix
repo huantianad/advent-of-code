@@ -1,22 +1,21 @@
 {
-  description = "test";
+  description = "Advent of Code";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
-  outputs = { self, flake-utils, nixpkgs }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = nixpkgs.legacyPackages.${system};
-      in {
-        devShell = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [
-            openssl_1_1
-            openssl
-            nim
-          ];
-        };
-      }
-    );
+  outputs = { self, nixpkgs }:
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages."${system}";
+    in
+    {
+      devShell."${system}" = pkgs.mkShell {
+        nativeBuildInputs = with pkgs; [
+          openssl
+          nim2
+        ];
+      };
+    };
 }
