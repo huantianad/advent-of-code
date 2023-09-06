@@ -73,6 +73,7 @@ proc getInput(year, day: int): string =
   client.headers["cookie"] = getCookie()
 
   result = client.getContent(fmt"https://adventofcode.com/{year}/day/{day}/input")
+  result.stripLineEnd()
   cachedInputPath.recursiveWriteFile(result)
 
 proc printResults(day: int, answers: OrderedTable[int, string], time: Duration) =
@@ -85,8 +86,9 @@ template day*(year, day: int, solution: untyped): untyped =
   let input {.inject.} = getInput(year, day)
   var answers: OrderedTable[int, string]
 
-  template part(partNum: int, answer: typed): untyped =
-    answers[partNum] = $answer
+  template part(partNum: int, answer: untyped): untyped =
+    # Wrap answer in an anon proc to allow return in part template for control flow
+    answers[partNum] = $(proc (): auto = answer)()
 
   let time = timed:
     solution
