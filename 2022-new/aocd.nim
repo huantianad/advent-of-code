@@ -60,6 +60,10 @@ proc getCookie(): string =
   #     fmt"but got '{token}' which is {token.len} characters long."
   #   )
 
+const aocdUserAgent = "Mozilla/5.0 (compatible; aocd-nim/0.1; " &
+  "https://github.com/huantianad/advent-of-code/blob/main/2022-new/aocd.nim " &
+  "by davidtianli@gmail.com)"
+
 proc getInput(year, day: int): string =
   ## Fetches the users input for a given year and day.
   ## Will cache the input after the first time this proc is called.
@@ -68,7 +72,7 @@ proc getInput(year, day: int): string =
     return readFile(cachedInputPath)
 
   echo fmt"Downloading input for year {year}, day {day}."
-  let client = newHttpClient()
+  let client = newHttpClient(userAgent = aocdUserAgent)
   defer: client.close()
   client.headers["cookie"] = getCookie()
 
